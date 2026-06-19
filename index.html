@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Golden Number Card Game</title>
+    <style>
+        /* ========================================================
+           HEAVILY FOCUSED CSS - MODERN NEON CASINO & GLASSMORPHISM
+           ======================================================== */
+        
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700;900&display=swap');
+
+        :root {
+            --bg-color: #0f172a;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --neon-blue: #38bdf8;
+            --neon-gold: #facc15;
+            --neon-green: #4ade80;
+            --neon-red: #f87171;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --card-width: 60px;
+            --card-height: 90px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #1e293b 0%, var(--bg-color) 100%);
+            color: var(--text-main);
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Navigation & Header --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 30px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--glass-border);
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: var(--neon-gold);
+            text-shadow: 0 0 10px rgba(250, 204, 21, 0.5);
+        }
+
+        .nav-controls button {
+            background: transparent;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin-left: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-controls button:hover {
+            background: var(--neon-blue);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px var(--neon-blue);
+        }
+
+        /* --- Main Game Area --- */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* --- Golden Number Display --- */
+        .golden-number-container {
+            text-align: center;
+            margin-bottom: 15px;
+            padding: 15px 40px;
+            background: rgba(250, 204, 21, 0.1);
+            border: 2px solid var(--neon-gold);
+            border-radius: 20px;
+            box-shadow: 0 0 30px rgba(250, 204, 21, 0.2);
+            animation: pulse-gold 2s infinite;
+        }
+
+        @keyframes pulse-gold {
+            0%, 100% { box-shadow: 0 0 20px rgba(250, 204, 21, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(250, 204, 21, 0.6); }
+        }
+
+        .golden-number-title {
+            font-size: 1rem;
+            color: var(--neon-gold);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .golden-number {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 20px var(--neon-gold);
+        }
+
+        /* --- Players Grid --- */
+        .players-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            width: 100%;
+            max-width: 1100px;
+            flex: 1;
+        }
+
+        .player-card {
+            background: var(--glass-bg);
+            border: 2px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.4s ease;
+            position: relative;
+            backdrop-filter: blur(5px);
+        }
+
+        .player-card.active {
+            border-color: var(--neon-green);
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.4);
+            transform: scale(1.05);
+            z-index: 5;
+        }
+
+        .player-card.settled {
+            opacity: 0.7;
+            filter: grayscale(0.5);
+        }
+
+        .player-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--neon-blue);
+        }
+
+        .player-score {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 10px;
+        }
+
+        .cards-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: -20px;
+            min-height: var(--card-height);
+            width: 100%;
+        }
+
+        /* --- Playing Cards Design --- */
+        .card {
+            width: var(--card-width);
+            height: var(--card-height);
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: -2px 2px 10px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-left: -15px;
+            animation: slideInCard 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            position: relative;
+        }
+
+        .card:first-child { margin-left: 0; }
+        .card.red { color: #dc2626; }
+        .card.black { color: #171717; }
+        .card .suit { font-size: 1rem; }
+
+        @keyframes slideInCard {
+            from { opacity: 0; transform: translateY(-50px) rotate(-15deg) scale(0.5); }
+            to { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+        }
+
+        /* --- Active Player HUD (Mini Total & Deviation) --- */
+        .active-hud {
+            display: flex;
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+            border-radius: 12px;
+            padding: 10px 30px;
+            gap: 30px;
+            margin-top: 10px;
+            backdrop-filter: blur(10px);
+            transition: opacity 0.3s ease;
+        }
+
+        .hud-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hud-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hud-value {
+            font-size: 1.5rem;
+            font-weight: 900;
+        }
+
+        /* --- Player Controls --- */
+        .controls-container {
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .action-btn {
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+        }
+
+        .btn-hit { background: var(--neon-green); color: #000; box-shadow: 0 0 15px rgba(74, 222, 128, 0.5); }
+        .btn-hit:hover { box-shadow: 0 0 25px rgba(74, 222, 128, 0.8); transform: translateY(-3px); }
+        
+        .btn-stand { background: var(--neon-red); color: #fff; box-shadow: 0 0 15px rgba(248, 113, 113, 0.5); }
+        .btn-stand:hover { box-shadow: 0 0 25px rgba(248, 113, 113, 0.8); transform: translateY(-3px); }
+
+        .action-btn:disabled {
+            background: #475569;
+            color: #94a3b8;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* --- Z-LAYER MODALS (Popups) --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+
+        .modal-content {
+            background: var(--bg-color);
+            border: 2px solid var(--neon-blue);
+            border-radius: 20px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 0 40px rgba(56, 189, 248, 0.2);
+            transform: translateY(50px);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-overlay.active .modal-content { transform: translateY(0); }
+
+        .modal-header {
+            font-size: 1.8rem;
+            color: var(--neon-blue);
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 900;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover { color: var(--neon-red); }
+
+        /* Editing Names & Golden Number Input Layout */
+        .name-edit-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        
+        .data-input {
+            width: 100%;
+            padding: 12px 15px;
+            background: #1e293b;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: white;
+            font-size: 1.1rem;
+            outline: none;
+            transition: border 0.3s;
+            text-align: center;
+        }
+        .data-input:focus { border-color: var(--neon-blue); }
+
+        .modal-btn {
+            width: 100%;
+            padding: 12px;
+            background: var(--neon-blue);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .leaderboard-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 15px;
+            background: var(--glass-bg);
+            margin-bottom: 8px;
+            border-radius: 8px;
+            border-left: 4px solid var(--text-muted);
+        }
+        .leaderboard-row:nth-child(1) { border-left-color: var(--neon-gold); }
+        .score-highlight { font-weight: 900; color: var(--neon-gold); }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="logo">AURA CARDS</div>
+        <div class="nav-controls">
+            <span id="round-indicator">Round: 1</span>
+            <button onclick="openModal('modal-names')">Edit Players</button>
+            <button onclick="openModal('modal-leaderboard')">Leaderboard</button>
+            <button onclick="openModal('modal-pause')">Menu</button>
+        </div>
+    </header>
+
+    <!-- Main Game UI -->
+    <main>
+        <!-- Golden Number Target -->
+        <div class="golden-number-container">
+            <div class="golden-number-title">Golden Number</div>
+            <div class="golden-number" id="golden-number">?</div>
+        </div>
+
+        <!-- Players Board -->
+        <div class="players-grid" id="players-grid">
+            <!-- Dynamically generated player zones -->
+        </div>
+
+        <!-- Active Player HUD (Mini Total & Deviation) -->
+        <div class="active-hud" id="active-hud" style="display: none;">
+            <div class="hud-stat">
+                <span class="hud-label">Playing</span>
+                <span class="hud-value" id="hud-name" style="color: var(--neon-blue)">--</span>
+            </div>
+            <div class="hud-stat">
+                <span class="hud-label">Mini Total</span>
+                <span class="hud-value" id="hud-total" style="color: #fff">0</span>
+            </div>
+            <div class="hud-stat">
+                <span class="hud-label">Deviation</span>
+                <span class="hud-value" id="hud-deviation">0</span>
+            </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls-container">
+            <button class="action-btn btn-hit" id="btn-hit" onclick="drawCard()" disabled>Draw Card</button>
+            <button class="action-btn btn-stand" id="btn-stand" onclick="settlePlayer()" disabled>Settle</button>
+        </div>
+    </main>
+
+    <!-- Z-LAYER MODALS -->
+
+    <!-- Set Golden Number Modal -->
+    <div id="modal-golden" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">Set Goal</div>
+            <p style="text-align:center; color: var(--text-muted); margin-bottom: 15px;">Target for Round <span id="golden-round-indicator" style="color:var(--neon-gold); font-weight:bold;">1</span></p>
+            <input type="number" id="golden-input" class="data-input" placeholder="Enter Golden Number (e.g. 32)">
+            <button class="modal-btn" onclick="confirmGoldenNumber()">Start Round</button>
+        </div>
+    </div>
+
+    <!-- Edit Names Modal -->
+    <div id="modal-names" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('modal-names')">&times;</span>
+            <div class="modal-header">Edit Players</div>
+            <div class="name-edit-group" id="name-inputs-container"></div>
+            <button class="modal-btn" onclick="saveNames()">Save Names</button>
+        </div>
+    </div>
+
+    <!-- Leaderboard Modal -->
+    <div id="modal-leaderboard" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('modal-leaderboard')">&times;</span>
+            <div class="modal-header">Session Leaderboard</div>
+            <div id="leaderboard-container"></div>
+        </div>
+    </div>
+
+    <!-- Round End / Summary Modal -->
+    <div id="modal-round-end" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">Round Over</div>
+            <div id="round-summary-container"></div>
+            <div style="display:flex; gap:10px; margin-top:20px;">
+                <button class="modal-btn" onclick="startNextRound()" style="background: var(--neon-green); color:#000;">Next Round</button>
+                <button class="modal-btn" onclick="endSession()" style="background: var(--neon-red)">End Session</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pause / Menu Modal -->
+    <div id="modal-pause" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal('modal-pause')">&times;</span>
+            <div class="modal-header">Game Menu</div>
+            <button class="modal-btn" onclick="closeModal('modal-pause')">Resume Game</button>
+            <button class="modal-btn" onclick="hardRestart()" style="background: var(--neon-red); margin-top:15px;">Restart Session</button>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        /* ========================================================
+           GAME STATE & LOGIC
+           ======================================================== */
+
+        const suits = ['♠', '♥', '♦', '♣'];
+        
+        let gameState = {
+            round: 1,
+            goldenNumber: null, // User dictates this now
+            activePlayerIndex: 0,
+            players: [],
+            isSessionEnded: false
+        };
+
+        function initPlayers() {
+            gameState.players = [];
+            for (let i = 0; i < 6; i++) {
+                gameState.players.push({
+                    id: i,
+                    name: `Player ${i + 1}`,
+                    cards: [],
+                    sum: 0,
+                    roundPoints: 0,
+                    totalPoints: 0,
+                    settled: false
+                });
+            }
+        }
+
+        function getRandomCard() {
+            const value = Math.floor(Math.random() * 10) + 1; // 1 to 10
+            const suit = suits[Math.floor(Math.random() * suits.length)];
+            const isRed = suit === '♥' || suit === '♦';
+            let displayValue = value === 1 ? 'A' : value;
+            return { value, displayValue, suit, isRed };
+        }
+
+        // PRE-ROUND PHASE: Clear board & Ask for Golden Number
+        function startRound() {
+            gameState.goldenNumber = null;
+            gameState.activePlayerIndex = 0;
+            
+            gameState.players.forEach(p => {
+                p.cards = [];
+                p.sum = 0;
+                p.roundPoints = 0;
+                p.settled = false;
+            });
+
+            document.getElementById('golden-round-indicator').innerText = gameState.round;
+            document.getElementById('round-indicator').innerText = `Round: ${gameState.round}`;
+            document.getElementById('golden-input').value = '';
+            
+            updateUI(); // Renders clean board
+            openModal('modal-golden'); // Prompt User
+        }
+
+        // CONFIRM NUMBER & DEAL FIRST CARDS
+        function confirmGoldenNumber() {
+            const inputVal = parseInt(document.getElementById('golden-input').value);
+            if (isNaN(inputVal) || inputVal <= 0) {
+                alert("Please enter a valid positive Golden Number!");
+                return;
+            }
+
+            gameState.goldenNumber = inputVal;
+            closeModal('modal-golden');
+
+            // Everyone gets ONE card initially
+            gameState.players.forEach(p => p.cards.push(getRandomCard()));
+            updateUI();
+        }
+
+        // Player Actions
+        function drawCard() {
+            if(gameState.isSessionEnded || !gameState.goldenNumber) return;
+            const player = gameState.players[gameState.activePlayerIndex];
+            player.cards.push(getRandomCard());
+            updateUI();
+        }
+
+        function settlePlayer() {
+            if(gameState.isSessionEnded || !gameState.goldenNumber) return;
+            gameState.players[gameState.activePlayerIndex].settled = true;
+            gameState.activePlayerIndex++;
+
+            if (gameState.activePlayerIndex >= 6) calculateRoundPoints();
+            else updateUI();
+        }
+
+        function calculateRoundPoints() {
+            gameState.players.forEach(p => {
+                p.sum = p.cards.reduce((acc, card) => acc + card.value, 0);
+                const diff = Math.abs(gameState.goldenNumber - p.sum);
+                
+                // > 10 Difference = 0 points. Else (10 - diff)
+                p.roundPoints = diff > 10 ? 0 : 10 - diff;
+                p.totalPoints += p.roundPoints;
+            });
+            showRoundEndSummary();
+        }
+
+        function startNextRound() {
+            closeModal('modal-round-end');
+            gameState.round++;
+            startRound();
+        }
+
+        function endSession() {
+            closeModal('modal-round-end');
+            gameState.isSessionEnded = true;
+            populateLeaderboard();
+            openModal('modal-leaderboard');
+            updateUI();
+        }
+
+        function hardRestart() {
+            closeModal('modal-pause');
+            closeModal('modal-leaderboard');
+            gameState.round = 1;
+            gameState.isSessionEnded = false;
+            initPlayers();
+            startRound();
+        }
+
+        /* ========================================================
+           UI UPDATE & RENDER LOGIC
+           ======================================================== */
+
+        function updateUI() {
+            // Update Top Number
+            document.getElementById('golden-number').innerText = gameState.goldenNumber ? gameState.goldenNumber : "?";
+            
+            const grid = document.getElementById('players-grid');
+            grid.innerHTML = '';
+
+            gameState.players.forEach((p, index) => {
+                const isActive = index === gameState.activePlayerIndex && gameState.goldenNumber !== null;
+                const isSettled = p.settled;
+                const currentSum = p.cards.reduce((acc, card) => acc + card.value, 0);
+
+                let cardsHTML = p.cards.map(c => `
+                    <div class="card ${c.isRed ? 'red' : 'black'}">
+                        <div>${c.displayValue}</div>
+                        <div class="suit">${c.suit}</div>
+                    </div>
+                `).join('');
+
+                grid.innerHTML += `
+                    <div class="player-card ${isActive ? 'active' : ''} ${isSettled ? 'settled' : ''}">
+                        <div class="player-name">${p.name}</div>
+                        <div class="player-score">Total Pts: ${p.totalPoints}</div>
+                        <div class="cards-container">${cardsHTML}</div>
+                    </div>
+                `;
+            });
+
+            // UPDATE ACTIVE PLAYER HUD (Mini Total & Deviation)
+            const hud = document.getElementById('active-hud');
+            const hitBtn = document.getElementById('btn-hit');
+            const standBtn = document.getElementById('btn-stand');
+
+            if (gameState.activePlayerIndex >= 6 || gameState.isSessionEnded || !gameState.goldenNumber) {
+                hud.style.display = 'none';
+                hitBtn.disabled = true;
+                standBtn.disabled = true;
+            } else {
+                const activePlayer = gameState.players[gameState.activePlayerIndex];
+                const currentSum = activePlayer.cards.reduce((acc, card) => acc + card.value, 0);
+                
+                // Difference mapping
+                const deviation = gameState.goldenNumber - currentSum; 
+                const absDev = Math.abs(deviation);
+                
+                // Formatting HUD
+                document.getElementById('hud-name').innerText = activePlayer.name;
+                document.getElementById('hud-total').innerText = currentSum;
+                
+                const devSpan = document.getElementById('hud-deviation');
+                if (deviation === 0) {
+                    devSpan.innerText = "PERFECT MATCH!";
+                    devSpan.style.color = "var(--neon-gold)";
+                } else if (deviation > 0) {
+                    devSpan.innerText = `Needs ${absDev} more`;
+                    devSpan.style.color = absDev > 10 ? "var(--neon-red)" : "var(--neon-green)";
+                } else {
+                    devSpan.innerText = `Over by ${absDev}`;
+                    devSpan.style.color = absDev > 10 ? "var(--neon-red)" : "var(--neon-gold)";
+                }
+
+                hud.style.display = 'flex';
+                hitBtn.disabled = false;
+                standBtn.disabled = false;
+            }
+        }
+
+        /* ========================================================
+           MODAL NAVIGATION CONTROLS
+           ======================================================== */
+
+        function openModal(id) {
+            if (id === 'modal-names') populateNameInputs();
+            if (id === 'modal-leaderboard') populateLeaderboard();
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        function populateNameInputs() {
+            const container = document.getElementById('name-inputs-container');
+            container.innerHTML = '';
+            gameState.players.forEach((p, i) => {
+                container.innerHTML += `<input type="text" class="data-input" id="edit-name-${i}" value="${p.name}" placeholder="Player ${i+1}">`;
+            });
+        }
+
+        function saveNames() {
+            gameState.players.forEach((p, i) => {
+                const inputVal = document.getElementById(`edit-name-${i}`).value;
+                if(inputVal.trim() !== '') p.name = inputVal.trim();
+            });
+            closeModal('modal-names');
+            updateUI();
+        }
+
+        function populateLeaderboard() {
+            const container = document.getElementById('leaderboard-container');
+            const sortedPlayers = [...gameState.players].sort((a, b) => b.totalPoints - a.totalPoints);
+            
+            let html = '';
+            sortedPlayers.forEach((p, index) => {
+                html += `
+                    <div class="leaderboard-row">
+                        <div><strong>#${index + 1}</strong> &nbsp; ${p.name}</div>
+                        <div class="score-highlight">${p.totalPoints} pts</div>
+                    </div>
+                `;
+            });
+            if (gameState.isSessionEnded) html += `<button class="modal-btn" onclick="hardRestart()" style="margin-top:20px;">Play New Game</button>`;
+            container.innerHTML = html;
+        }
+
+        function showRoundEndSummary() {
+            const container = document.getElementById('round-summary-container');
+            let html = `<p style="text-align:center; margin-bottom:15px; color:var(--text-muted)">Golden Number was: <strong style="color:var(--neon-gold)">${gameState.goldenNumber}</strong></p>`;
+            
+            gameState.players.forEach(p => {
+                const diff = Math.abs(gameState.goldenNumber - p.sum);
+                let pointColor = diff > 10 ? "var(--neon-red)" : "var(--neon-gold)";
+                html += `
+                    <div class="leaderboard-row" style="border-left-color: var(--neon-blue);">
+                        <div>${p.name} (Sum: ${p.sum})</div>
+                        <div>Diff: ${diff} &rarr; <span class="score-highlight" style="color:${pointColor}">+${p.roundPoints}</span></div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            openModal('modal-round-end');
+            updateUI();
+        }
+
+        // Boot
+        window.onload = () => {
+            initPlayers();
+            startRound(); // Immediately asks for Golden Number
+        };
+
+    </script>
+</body>
+              </html>
