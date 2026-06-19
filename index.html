@@ -630,10 +630,18 @@
     }
 
     function getRandomCard() {
-      const value = Math.floor(Math.random() * 10) + 1;
+      // Modify generator to select values from 1 up to 13
+      const value = Math.floor(Math.random() * 13) + 1;
       const suit = suits[Math.floor(Math.random() * suits.length)];
       const isRed = suit === '♥' || suit === '♦';
-      const displayValue = value === 1 ? 'A' : String(value);
+      
+      let displayValue;
+      if (value === 1) displayValue = 'A';
+      else if (value === 11) displayValue = 'J';
+      else if (value === 12) displayValue = 'Q';
+      else if (value === 13) displayValue = 'K';
+      else displayValue = String(value);
+
       return { value, displayValue, suit, isRed };
     }
 
@@ -910,4 +918,4 @@
     };
   </script>
 </body>
-    </html>
+</html>
